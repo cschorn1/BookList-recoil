@@ -1,8 +1,15 @@
 import { atom } from "recoil";
+import type { BookStatus } from "../types/Book";
 
-export type TodoFilter = "todas" | "concluidas" | "pendentes";
+export type GenreFilter = "todos" | "romance" | "infantil" | "terror" | "autoajuda" | "outro";
+export type StatusFilter = "todos" | BookStatus;
 
-export const filtroAtom = atom<TodoFilter>({
+export interface BookFilters {
+  genre: GenreFilter;
+  status: StatusFilter;
+}
+
+export const filtroAtom = atom<BookFilters>({
   key: "filtroAtom",
-  default: "todas",
+  default: { genre: "todos", status: "todos" },
 });

@@ -1,30 +1,30 @@
 import { useRecoilState, useSetRecoilState } from "recoil";
-import { tarefasAtom } from "../atoms/tarefasAtom";
+import { livrosAtom } from "../atoms/booksAtom";
 import { syncStatusAtom } from "../atoms/syncStatusAtom";
-import { removerTarefa } from "../services/api";
 import { adicionarPendencia, removerPendencia } from "../services/offlineSync";
+import { removerLivro } from "../services/bookApi";
 
-export function useDeleteTodo() {
-    const [tarefas, setTarefas] = useRecoilState(tarefasAtom);
+export function useDeleteBook() {
+    const [livros, setLivros] = useRecoilState(livrosAtom);
     const setSyncStatus = useSetRecoilState(syncStatusAtom);
 
-    const excluirTarefa = async (id: string) => {
-        const tarefa = tarefas.find((item) => item._id === id);
-        if (!tarefa) {
+    const excluirLivro = async (id: string) => {
+        const livro = livros.find((item) => item._id === id);
+        if (!livro) {
             return;
         }
 
         if (id.startsWith("temp-")) {
-            setTarefas((tarefasAtuais) => tarefasAtuais.filter((item) => item._id !== id));           
+            setLivros((livrosAtuais) => livrosAtuais.filter((item) => item._id !== id));           
             removerPendencia(id, "criar");
             return;
         }
 
-        setTarefas((tarefasAtuais) => tarefasAtuais.filter((item) => item._id !== id));
+        setLivros((livrosAtuais) => livrosAtuais.filter((item) => item._id !== id));
         adicionarPendencia({ id, action: "remover",});
         
         try{
-            await removerTarefa(id);
+            await removerLivro(id);
             removerPendencia(id, "remover");
         }catch (erro) {
             console.error("Remover falhou:", erro);
@@ -32,5 +32,5 @@ export function useDeleteTodo() {
         }
     };
 
-    return excluirTarefa;
+    return excluirLivro;
 }

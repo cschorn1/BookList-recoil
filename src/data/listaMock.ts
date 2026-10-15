@@ -1,22 +1,31 @@
-import type {Todo} from '../types/Todo';
+import type { Book } from '../types/Book';
 
-export const listaMock: Todo[] = [
+export const listaMock: Book[] = [
     {
-        nome: "Lavar carro",
-        imagem: "https://placehold.co/300x200?text=Notebook",
-        descricao: "Notebook para estudos e trabalho.",
-        concluida: false
+        title: "Dom Casmurro",
+        author: "Machado de Assis",
+        description: "Um dos romances mais conhecidos da literatura brasileira.",
+        image: "https://placehold.co/300x200?text=Dom+Casmurro",
+        genre: "Romance",
+        status: "Não lido",
+        isMock: true
     },
     {
-        nome: "Comprar carro",
-        imagem: "https://placehold.co/300x200?text=Smartphone",
-        descricao: "SUV com excelente desempenho.",
-        concluida: false
+        title: "Quarto de Despejo",
+        author: "Carolina Maria de Jesus",
+        description: "Relatos do cotidiano de uma mulher na favela do Canindé.",
+        image: "https://placehold.co/300x200?text=Quarto+de+Despejo",
+        genre: "Outro",
+        status: "Lido",
+        isMock: true
     },
     {
-        nome: "Construir casa",
-        imagem: "https://placehold.co/300x200?text=Fone",
-        descricao: "Casa confortável e de alta qualidade.",
-        concluida: false
+        title: "O Pequeno Príncipe",
+        author: "Antoine de Saint-Exupéry",
+        description: "Uma história sobre amizade, afeto e responsabilidade.",
+        image: "https://placehold.co/300x200?text=O+Pequeno+Principe",
+        genre: "Infantil",
+        status: "Não lido",
+        isMock: true
     }
 ];

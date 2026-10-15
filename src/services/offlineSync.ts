@@ -1,28 +1,28 @@
-import type { Todo } from "../types/Todo";
+import type { Book } from "../types/Book";
 
 export type PendingActionType = "criar" | "atualizar" | "remover";
 
-export interface TarefaPendente {
+export interface LivroPendente {
     id: string;
     action: PendingActionType;
-    tarefa?: Todo;
+    livro?: Book;
 }
 
-const STORAGE_KEY = "tarefasPendentes";
+const STORAGE_KEY = "livrosPendentes";
 
-export function carregarPendencias(): TarefaPendente[] {
+export function carregarPendencias(): LivroPendente[] {
     if (typeof window === "undefined") {
         return [];
     }
 
     try {
         const pendenciasSalvas = window.localStorage.getItem(STORAGE_KEY);
-        return pendenciasSalvas ? (JSON.parse(pendenciasSalvas) as TarefaPendente[]) : [];
+        return pendenciasSalvas ? (JSON.parse(pendenciasSalvas) as LivroPendente[]) : [];
     }catch {
         return [];
     }
 }
-export function salvarPendencias(pendencias: TarefaPendente[]) {
+export function salvarPendencias(pendencias: LivroPendente[]) {
     if (typeof window === "undefined") {
         return;
     }
@@ -34,7 +34,7 @@ export function salvarPendencias(pendencias: TarefaPendente[]) {
     }
 }
 
-export function adicionarPendencia(pendencia: TarefaPendente) {
+export function adicionarPendencia(pendencia: LivroPendente) {
     const pendenciasAtuais = carregarPendencias();
 
     const filtradas = pendenciasAtuais.filter((item) => !(item.id === pendencia.id && item.action === pendencia.action));

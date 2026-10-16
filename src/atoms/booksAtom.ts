@@ -1,5 +1,5 @@
 import { atom } from "recoil";
-import type { Book } from "../types/Book";
+import { isBook, type Book } from "../types/Book";
 import { listaMock } from "../data/listaMock";
 
 const livrosMockLocais = listaMock.map((livro, index) => ({
@@ -7,18 +7,27 @@ const livrosMockLocais = listaMock.map((livro, index) => ({
     _id: `mock-${index + 1}`,
 }));
 
-function carregarLivrosSalvos(): Book[] {
+export function lerLivrosLocais(): Book[] {
     if (typeof window === "undefined") {
         return [];
     }
 
     try {
         const livrosSalvos = window.localStorage.getItem("livros");
-        const livros = livrosSalvos ? (JSON.parse(livrosSalvos) as Book[]) : [];
-        return livros.length > 0 ? livros : livrosMockLocais;
+        if (!livrosSalvos) {
+            return [];
+        }
+
+        const dados: unknown = JSON.parse(livrosSalvos);
+        return Array.isArray(dados) ? dados.filter(isBook) : [];
     }catch {
-        return livrosMockLocais;
+        return [];
     }
+}
+
+function carregarLivrosSalvos(): Book[] {
+    const livros = lerLivrosLocais();
+    return livros.length > 0 ? livros : livrosMockLocais;
 }
 
 export const livrosAtom = atom<Book[]>({

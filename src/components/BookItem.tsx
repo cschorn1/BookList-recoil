@@ -30,6 +30,9 @@ function BookItem({ livro, excluirLivro, concluirLivro }: BookItemProps) {
                         {livro.title}
                     </h2>
                     <p className="mt-1 text-sm text-slate-600">{livro.author}</p>
+                    <p className="mt-2 inline-flex rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium capitalize text-slate-600">
+                        {livro.genre}
+                    </p>
                 </div>
 
                 {/* Descrição Retrátil */}
@@ -62,7 +65,7 @@ function BookItem({ livro, excluirLivro, concluirLivro }: BookItemProps) {
                 <div className="flex justify-end @xs:col-span-2 @md:col-span-1 @md:col-start-2">
                     <button
                         type="button"
-                        onClick={() => concluirLivro(livro._id!)}
+                        onClick={() => concluirLivro(livro._id)}
                         className={`rounded-md px-3 py-1.5 text-xs font-medium transition ${
                             livro.status === "Lido"
                                 ? "bg-green-100 text-green-800 hover:bg-green-200"
@@ -74,11 +77,11 @@ function BookItem({ livro, excluirLivro, concluirLivro }: BookItemProps) {
                 </div>
             </div>
 
-            {!livro.isMock && livro._id && (
+            {!livro.isMock && (
                 <button
                     type="button"
                     aria-label={`Excluir ${livro.title}`}
-                    onClick={() => excluirLivro(livro._id!)}
+                    onClick={() => excluirLivro(livro._id)}
                     className="absolute right-3 top-3 grid size-8 place-items-center rounded-full bg-white/90 text-lg text-red-600 shadow-sm transition hover:bg-red-600 hover:text-white"
                 >
                     ×

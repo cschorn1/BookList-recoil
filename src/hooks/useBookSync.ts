@@ -1,11 +1,11 @@
 ﻿import { useEffect } from "react";
 import { useRecoilState, useSetRecoilState } from "recoil";
-import { livrosAtom } from "../atoms/booksAtom";
+import { livrosAtom, lerLivrosLocais } from "../atoms/booksAtom";
 import { listaMock } from "../data/listaMock";
 import { syncStatusAtom } from "../atoms/syncStatusAtom";
 import { atualizarLivro, buscarLivros, addLivro, removerLivro } from "../services/bookApi";
 import { carregarPendencias, removerPendencia } from "../services/offlineSync";
-import type { Book } from "../types/Book";
+import type { NewBook } from "../types/Book";
 
 export function useBookSync() {
     const [livros, setLivros] = useRecoilState(livrosAtom);
@@ -40,21 +40,17 @@ export function useBookSync() {
                 let livrosApiAntes = await buscarLivros();
 
                 if (livrosApiAntes.length === 0) {
-                    const livrosLocaisSalvos = JSON.parse(
-                        window.localStorage.getItem("livros") || "[]"
-                    ) as Book[];
-                    const mocksLocais = Array.isArray(livrosLocaisSalvos)
-                        ? livrosLocaisSalvos.filter((livro) => livro.isMock)
-                        : [];
-                    const mocksParaSemear = mocksLocais.length > 0 ? mocksLocais : listaMock;
+                    const mocksLocais = lerLivrosLocais().filter((livro) => livro.isMock);
+                    const mocksParaSemear: NewBook[] = mocksLocais.length > 0
+                        ? mocksLocais.map(({ _id, ...livro }) => livro)
+                        : listaMock;
 
                     for (const livroMock of mocksParaSemear) {
                         if (cancelado) {
                             return;
                         }
 
-                        const { _id: _, ...payload } = livroMock;
-                        await addLivro(payload);
+                        await addLivro(livroMock);
                     }
 
                     livrosApiAntes = await buscarLivros();
@@ -71,14 +67,14 @@ export function useBookSync() {
 
                     if (pendencia.action === "criar" && pendencia.livro) {
                         const { _id: _, ...payload } = pendencia.livro;
-                        const livroCriado = await addLivro(payload as Book);
+                        const livroCriado = await addLivro(payload, pendencia.id);
                         removerPendencia(pendencia.id, "criar");
                         if (livroCriado._id) {
                             idsApiConhecidos.add(livroCriado._id);
                         }
 
                         const livroAtualizado = { ...pendencia.livro, ...livroCriado };
-                        const locais = JSON.parse(window.localStorage.getItem("livros") || "[]") as Book[];
+                        const locais = lerLivrosLocais();
                         window.localStorage.setItem("livros", JSON.stringify(
                             locais.map((local) => local._id === pendencia.id ? livroAtualizado : local)
                         ));
@@ -90,14 +86,14 @@ export function useBookSync() {
                         const idAtual = idsMigrados.get(pendencia.id) ?? pendencia.id;
 
                         if (idsApiConhecidos.has(idAtual)) {
-                            await atualizarLivro(idAtual, payload as Book);
+                            await atualizarLivro(idAtual, payload);
                         } else {
-                            const livroCriado = await addLivro(payload as Book);
+                            const livroCriado = await addLivro(payload, idAtual);
                             if (livroCriado._id) {
                                 idsMigrados.set(pendencia.id, livroCriado._id);
                                 idsApiConhecidos.add(livroCriado._id);
                                 const livroAtualizado = { ...pendencia.livro, ...livroCriado };
-                                const locais = JSON.parse(window.localStorage.getItem("livros") || "[]") as Book[];
+                                const locais = lerLivrosLocais();
                                 window.localStorage.setItem("livros", JSON.stringify(
                                     locais.map((local) => local._id === pendencia.id ? livroAtualizado : local)
                                 ));
@@ -123,11 +119,10 @@ export function useBookSync() {
                     return;
                 }
 
-                const locaisAtualizados = JSON.parse(window.localStorage.getItem("livros") || "[]");
-                const livrosLocaisSemId = (Array.isArray(locaisAtualizados) ? locaisAtualizados : [])
-                    .filter((local: Book) => !local._id || local._id.startsWith("temp-"));
+                const livrosLocaisSemId = lerLivrosLocais()
+                    .filter((local) => local._id.startsWith("temp-"));
                 const idsApi = new Set(dadosApi.map((livro) => livro._id));
-                const livrosTemporarios = livrosLocaisSemId.filter((local: Book) => !idsApi.has(local._id));
+                const livrosTemporarios = livrosLocaisSemId.filter((local) => !idsApi.has(local._id));
                 const mergeFinal = [...dadosApi, ...livrosTemporarios];
 
                 setLivros(mergeFinal);

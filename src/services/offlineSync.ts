@@ -1,4 +1,4 @@
-import type { Book } from "../types/Book";
+import { isBook, type Book } from "../types/Book";
 
 export type PendingActionType = "criar" | "atualizar" | "remover";
 
@@ -10,6 +10,28 @@ export interface LivroPendente {
 
 const STORAGE_KEY = "livrosPendentes";
 
+function isLivroPendente(value: unknown): value is LivroPendente {
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        return false;
+    }
+
+    const pendencia = value as Record<string, unknown>;
+    const action = pendencia.action;
+
+    if (
+        typeof pendencia.id !== "string" ||
+        (action !== "criar" && action !== "atualizar" && action !== "remover")
+    ) {
+        return false;
+    }
+
+    if (action === "remover") {
+        return pendencia.livro === undefined || isBook(pendencia.livro);
+    }
+
+    return isBook(pendencia.livro);
+}
+
 export function carregarPendencias(): LivroPendente[] {
     if (typeof window === "undefined") {
         return [];
@@ -17,7 +39,12 @@ export function carregarPendencias(): LivroPendente[] {
 
     try {
         const pendenciasSalvas = window.localStorage.getItem(STORAGE_KEY);
-        return pendenciasSalvas ? (JSON.parse(pendenciasSalvas) as LivroPendente[]) : [];
+        if (!pendenciasSalvas) {
+            return [];
+        }
+
+        const dados: unknown = JSON.parse(pendenciasSalvas);
+        return Array.isArray(dados) ? dados.filter(isLivroPendente) : [];
     }catch {
         return [];
     }

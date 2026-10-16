@@ -1,6 +1,6 @@
-import type { Book } from '../types/Book';
+import type { NewBook } from '../types/Book';
 
-export const listaMock: Book[] = [
+export const listaMock: NewBook[] = [
     {
         title: "Dom Casmurro",
         author: "Machado de Assis",
